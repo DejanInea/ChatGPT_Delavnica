@@ -1,6 +1,7 @@
 ﻿% !TEX program = pdflatex
 % Compile with: pdflatex -shell-escape docs/report.tex (for SVG support)
 % If you do not have Inkscape, either install it or comment \includesvg and replace with a PNG/PDF.
+\providecommand\IfPDFManagementActiveF[1]{#1}
 
 \documentclass[11pt,a4paper]{article}
 \usepackage[utf8]{inputenc}
@@ -40,7 +41,9 @@ Ta dokument opisuje implementacijo vizualizacije toka vode v dveh izvedbah: \tex
 
 \begin{figure}[H]
   \centering
-  \includesvg[width=0.95\linewidth]{flowchart}
+  % Avoid LaTeX overlay from Inkscape (underscores in labels can break compilation)
+  % \includesvg[inkscapelatex=false,width=0.95\linewidth]{flowchart}
+  \includegraphics[width=0.95\linewidth]{flowchart.png}
   \caption{Shema poteka algoritma (flowchart).}
 \end{figure}
 
