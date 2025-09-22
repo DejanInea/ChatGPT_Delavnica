@@ -1,0 +1,46 @@
+﻿{
+  "version": "2.0.0",
+  "tasks": [
+    {
+      "label": "CMake: Configure",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "-S", ".",
+        "-B", "build"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": false
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "CMake: Build (Release)",
+      "type": "shell",
+      "command": "cmake",
+      "args": [
+        "--build", "build",
+        "--config", "Release"
+      ],
+      "group": {
+        "kind": "build",
+        "isDefault": true
+      },
+      "problemMatcher": []
+    },
+    {
+      "label": "Run water_flow (Release)",
+      "type": "shell",
+      "command": "${workspaceFolder}\\build\\Release\\water_flow_cpp.exe",
+      "args": ["--fps=90"],
+      "options": {
+        "cwd": "${workspaceFolder}"
+      },
+      "dependsOn": [
+        "CMake: Build (Release)"
+      ],
+      "problemMatcher": []
+    }
+  ]
+}

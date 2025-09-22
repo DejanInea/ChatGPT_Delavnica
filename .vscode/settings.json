@@ -1,0 +1,10 @@
+﻿{
+  "cmake.configureSettings": {
+    "WATER_FLOW_USE_OPENCV": "ON",
+    "OpenCV_DIR": "C:\\Libraries\\opencv-4.10.0\\Build",
+    "ImageMagick_INCLUDE_DIRS": "C:\\Program Files\\ImageMagick-7.1.2-Q16-HDRI\\include",
+    "ImageMagick_LIBRARIES": "C:\\Program Files\\ImageMagick-7.1.2-Q16-HDRI\\lib\\CORE_RL_Magick++_.lib;C:\\Program Files\\ImageMagick-7.1.2-Q16-HDRI\\lib\\CORE_RL_MagickCore_.lib;C:\\Program Files\\ImageMagick-7.1.2-Q16-HDRI\\lib\\CORE_RL_MagickWand_.lib"
+  },
+  "cmake.generator": "Ninja",
+  "cmake.buildDirectory": "${workspaceFolder}/build"
+}
