@@ -1,0 +1,92 @@
+%% Creator: Inkscape 1.3.2 (091e20e, 2023-11-25, custom), www.inkscape.org
+%% PDF/EPS/PS + LaTeX output extension by Johan Engelen, 2010
+%% Accompanies image file 'flowchart_svg-tex.pdf' (pdf, eps, ps)
+%%
+%% To include the image in your LaTeX document, write
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics{<filename>.pdf}
+%% To scale the image, write
+%%   \def\svgwidth{<desired width>}
+%%   \input{<filename>.pdf_tex}
+%%  instead of
+%%   \includegraphics[width=<desired width>]{<filename>.pdf}
+%%
+%% Images with a different path to the parent latex file can
+%% be accessed with the `import' package (which may need to be
+%% installed) using
+%%   \usepackage{import}
+%% in the preamble, and then including the image with
+%%   \import{<path to file>}{<filename>.pdf_tex}
+%% Alternatively, one can specify
+%%   \graphicspath{{<path to file>/}}
+%% 
+%% For more information, please see info/svg-inkscape on CTAN:
+%%   http://tug.ctan.org/tex-archive/info/svg-inkscape
+%%
+\begingroup%
+  \makeatletter%
+  \providecommand\color[2][]{%
+    \errmessage{(Inkscape) Color is used for the text in Inkscape, but the package 'color.sty' is not loaded}%
+    \renewcommand\color[2][]{}%
+  }%
+  \providecommand\transparent[1]{%
+    \errmessage{(Inkscape) Transparency is used (non-zero) for the text in Inkscape, but the package 'transparent.sty' is not loaded}%
+    \renewcommand\transparent[1]{}%
+  }%
+  \providecommand\rotatebox[2]{#2}%
+  \newcommand*\fsize{\dimexpr\f@size pt\relax}%
+  \newcommand*\lineheight[1]{\fontsize{\fsize}{#1\fsize}\selectfont}%
+  \ifx\svgwidth\undefined%
+    \setlength{\unitlength}{489bp}%
+    \ifx\svgscale\undefined%
+      \relax%
+    \else%
+      \setlength{\unitlength}{\unitlength * \real{\svgscale}}%
+    \fi%
+  \else%
+    \setlength{\unitlength}{\svgwidth}%
+  \fi%
+  \global\let\svgwidth\undefined%
+  \global\let\svgscale\undefined%
+  \makeatother%
+  \begin{picture}(1,1.62676141)%
+    \lineheight{1}%
+    \setlength\tabcolsep{0pt}%
+    \put(0.5,1.6088957){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Shema poteka: vizualizacija toka vode}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=1]{flowchart_svg-tex.pdf}}%
+    \put(0.5,1.52453988){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Začetek\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=2]{flowchart_svg-tex.pdf}}%
+    \put(0.5,1.40184049){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Inicializiraj nastavitve (Config)}\end{tabular}}}}%
+    \put(0.5,1.37116564){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}resolution, steps, dt, strength, fps, live_view\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=3]{flowchart_svg-tex.pdf}}%
+    \put(0.5,1.24846626){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Ustvari začetno barvilo (dye)}\end{tabular}}}}%
+    \put(0.5,1.21779141){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}modri odtenek + šum + vinjeta\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=4]{flowchart_svg-tex.pdf}}%
+    \put(0.5,1.08742331){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Zanka po korakih (step = 0 .. steps-1)}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=5]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.95705521){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Izračunaj hitrostno polje v(x,y,t)}\end{tabular}}}}%
+    \put(0.5,0.92638037){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}curl(ψ), Gaussovo glajenje\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=6]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.8190184){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Advekcija barvila (semi-Lagrange)}\end{tabular}}}}%
+    \put(0.5,0.78834356){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}bilinearna interpolacija\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=7]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.6809816){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Dušenje in barvno ravnotežje}\end{tabular}}}}%
+    \put(0.5,0.65030675){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}dye = 0.995 * dye + 0.005 * base_dye\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=8]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.48159509){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{live_view?}\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=9]{flowchart_svg-tex.pdf}}%
+    \put(0.80674847,0.50460123){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Osveži okno\end{tabular}}}}%
+    \put(0.80674847,0.47392638){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}(Matplotlib/OpenCV)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=10]{flowchart_svg-tex.pdf}}%
+    \put(0.19325153,0.50460123){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Dodaj sličico v seznam\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=11]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.31288344){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Naslednji korak (step ← step + 1)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=12]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.19018405){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}\textbf{Shrani GIF}\end{tabular}}}}%
+    \put(0.5,0.1595092){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}imageio (Py) / Magick++ (C++)\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=13]{flowchart_svg-tex.pdf}}%
+    \put(0.5,0.03680982){\color[rgb]{0.17254902,0.24313725,0.31372549}\makebox(0,0)[t]{\lineheight{1.25}\smash{\begin{tabular}[t]{c}Konec\end{tabular}}}}%
+    \put(0,0){\includegraphics[width=\unitlength,page=14]{flowchart_svg-tex.pdf}}%
+  \end{picture}%
+\endgroup%
