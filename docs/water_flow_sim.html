@@ -1,0 +1,508 @@
+﻿<!DOCTYPE html>
+<html lang="sl">
+<head>
+  <meta charset="utf-8">
+  <title>Simulacija toka vode</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <style>
+    :root {
+      color-scheme: dark;
+      font-family: "Segoe UI", system-ui, -apple-system, sans-serif;
+      background: radial-gradient(circle at 20% 20%, #0f1f3f, #050912 60%);
+      color: #f0f6ff;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: clamp(1rem, 3vw, 2.5rem);
+    }
+    main {
+      width: min(960px, 100%);
+      background: rgba(12, 21, 38, 0.85);
+      border: 1px solid rgba(131, 167, 255, 0.25);
+      border-radius: 20px;
+      padding: clamp(1.5rem, 4vw, 2.75rem);
+      box-shadow: 0 25px 60px rgba(9, 14, 36, 0.4);
+      backdrop-filter: blur(12px);
+    }
+    header p {
+      margin-bottom: 1.25rem;
+      line-height: 1.5;
+      color: rgba(215, 227, 255, 0.82);
+    }
+    h1 {
+      margin-top: 0;
+      font-size: clamp(1.9rem, 3vw + 1rem, 2.8rem);
+      letter-spacing: 0.01em;
+    }
+    canvas {
+      width: min(512px, 70vw);
+      height: min(512px, 70vw);
+      border-radius: 16px;
+      display: block;
+      margin: 1.2rem auto;
+      background: radial-gradient(circle at 30% 30%, #0a1935, #020410 70%);
+      border: 1px solid rgba(120, 160, 255, 0.25);
+      image-rendering: smooth;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 1.5rem;
+      justify-content: center;
+      margin-top: 1.5rem;
+    }
+    .control {
+      display: flex;
+      flex-direction: column;
+      min-width: 180px;
+      color: rgba(220, 230, 255, 0.9);
+    }
+    .control span {
+      font-size: 0.85rem;
+      color: rgba(196, 210, 255, 0.8);
+      margin-top: 0.35rem;
+    }
+    input[type="range"] {
+      accent-color: #5aa9ff;
+    }
+    button {
+      align-self: center;
+      padding: 0.55rem 1.3rem;
+      border-radius: 999px;
+      border: 1px solid rgba(132, 174, 255, 0.4);
+      background: linear-gradient(180deg, rgba(102, 156, 255, 0.35), rgba(80, 132, 230, 0.3));
+      color: #f3f7ff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 12px 24px rgba(79, 127, 255, 0.35);
+    }
+    .hint {
+      text-align: center;
+      font-size: 0.8rem;
+      color: rgba(190, 205, 245, 0.65);
+      margin-top: 1.75rem;
+    }
+    @media (max-width: 640px) {
+      main {
+        padding: 1.5rem;
+      }
+      canvas {
+        width: 90vw;
+        height: 90vw;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>Proceduralna simulacija toka vode</h1>
+      <p>
+        Spletna razlicica sledi isti logiki kot izvorna Python in C++ implementacija:
+        polje barvila se advektira skozi divergencno prost tok, ki ga generira casovno
+        odvisna stream funkcija. Na drsnikih spodaj lahko v realnem casu prilagodis
+        kljucne parametre in opazujes vpliv na dinamiko.
+      </p>
+    </header>
+
+    <canvas id="simCanvas" width="256" height="256" role="img" aria-label="Simulacija toka vode"></canvas>
+
+    <div class="controls">
+      <label class="control">
+        Intenziteta tokov
+        <input id="strength" type="range" min="0.6" max="2.4" step="0.05" value="1.4">
+        <span data-field="strength">1.40</span>
+      </label>
+
+      <label class="control">
+        Dolzina koraka (dt)
+        <input id="timestep" type="range" min="0.25" max="0.9" step="0.05" value="0.6">
+        <span data-field="dt">0.60</span>
+      </label>
+
+      <label class="control">
+        Gaussovo glajenje
+        <input id="blur" type="range" min="0" max="2.5" step="0.1" value="1.0">
+        <span data-field="blur">1.0</span>
+      </label>
+
+      <label class="control">
+        Ciljni FPS
+        <input id="fps" type="range" min="24" max="90" step="1" value="60">
+        <span data-field="fps">60</span>
+      </label>
+
+      <button id="reset">Ponastavi barvilo</button>
+    </div>
+
+    <p class="hint">
+      Nasvet: zvisaj &raquo;Intenziteta tokov&laquo; in zmanjsaj glajenje za bolj turbulentne vzorce.
+    </p>
+  </main>
+
+  <script>
+    (() => {
+      const canvas = document.getElementById("simCanvas");
+      const ctx = canvas.getContext("2d");
+      if (!ctx) {
+        canvas.replaceWith("Vas brskalnik ne podpira 2D platna.");
+        return;
+      }
+
+      const config = {
+        resolution: 256,
+        dt: 0.6,
+        strength: 1.4,
+        blurSigma: 1.0,
+        fps: 60,
+        stepsPerCycle: 180
+      };
+
+      let frameInterval = 1000 / config.fps;
+      let baseDye, dye, tempDye, velocity, velocityTemp, streamField, imageData, pixels;
+      let rngState = 42 >>> 0;
+      let normalCache = null;
+      let step = 0;
+      let accumulator = 0;
+      let lastTime = performance.now();
+
+      const controls = {
+        strength: document.getElementById("strength"),
+        dt: document.getElementById("timestep"),
+        blur: document.getElementById("blur"),
+        fps: document.getElementById("fps"),
+        reset: document.getElementById("reset"),
+        strengthLabel: document.querySelector('[data-field="strength"]'),
+        dtLabel: document.querySelector('[data-field="dt"]'),
+        blurLabel: document.querySelector('[data-field="blur"]'),
+        fpsLabel: document.querySelector('[data-field="fps"]')
+      };
+
+      function seedRng(value) {
+        rngState = (value >>> 0) || 1;
+        normalCache = null;
+      }
+
+      function randomUnit() {
+        rngState ^= rngState << 13;
+        rngState ^= rngState >>> 17;
+        rngState ^= rngState << 5;
+        return ((rngState >>> 0) + 0.5) / 4294967296;
+      }
+
+      function randomNormal() {
+        if (normalCache !== null) {
+          const value = normalCache;
+          normalCache = null;
+          return value;
+        }
+        let u = 0;
+        while (u === 0) {
+          u = randomUnit();
+        }
+        const v = randomUnit();
+        const mag = Math.sqrt(-2.0 * Math.log(u));
+        const z0 = mag * Math.cos(2.0 * Math.PI * v);
+        const z1 = mag * Math.sin(2.0 * Math.PI * v);
+        normalCache = z1;
+        return z0;
+      }
+
+      function clamp255(value) {
+        if (value < 0) return 0;
+        if (value > 255) return 255;
+        return value;
+      }
+
+      function initBuffers() {
+        const n = config.resolution;
+        canvas.width = n;
+        canvas.height = n;
+        const displaySize = Math.min(512, Math.round(window.innerWidth * 0.7));
+        canvas.style.width = displaySize + "px";
+        canvas.style.height = displaySize + "px";
+
+        baseDye = new Float32Array(n * n * 3);
+        dye = new Float32Array(n * n * 3);
+        tempDye = new Float32Array(n * n * 3);
+        velocity = new Float32Array(n * n * 2);
+        velocityTemp = new Float32Array(n * n * 2);
+        streamField = new Float32Array(n * n);
+        imageData = ctx.createImageData(n, n);
+        pixels = imageData.data;
+
+        seedRng(42);
+        populateBaseDye();
+        drawFrame();
+      }
+
+      function populateBaseDye() {
+        const n = config.resolution;
+        const baseColor = [30.0, 90.0, 180.0];
+        const maxIndex = Math.max(1, n - 1);
+
+        for (let y = 0; y < n; y++) {
+          const ny = (y / maxIndex) * 2 - 1;
+          for (let x = 0; x < n; x++) {
+            const nx = (x / maxIndex) * 2 - 1;
+            const idx = (y * n + x) * 3;
+            const dist = Math.hypot(nx, ny);
+            const vignette = Math.min(Math.max(1.0 - 0.8 * dist, 0.2), 1.0);
+
+            for (let c = 0; c < 3; c++) {
+              const noisy = baseColor[c] + randomNormal() * 20.0;
+              const clamped = clamp255(noisy);
+              const value = clamp255(clamped * vignette);
+              baseDye[idx + c] = value;
+              dye[idx + c] = value;
+            }
+          }
+        }
+      }
+
+      function streamFunction(x, y, t) {
+        const base = Math.sin(2 * Math.PI * (3 * x + 0.7 * t)) * Math.sin(2 * Math.PI * (3 * y - 0.5 * t));
+        const swirl = Math.cos(2 * Math.PI * (2 * x - 0.3 * t)) * Math.cos(2 * Math.PI * (2 * y + 0.4 * t));
+        const ripple = Math.sin(2 * Math.PI * (4 * x + y + 0.2 * t));
+        return base + 0.6 * swirl + 0.25 * ripple;
+      }
+
+      function buildVelocityField(t) {
+        const n = config.resolution;
+        const inv = 1 / n;
+        for (let y = 0; y < n; y++) {
+          for (let x = 0; x < n; x++) {
+            const idx = y * n + x;
+            const fx = x * inv;
+            const fy = y * inv;
+            streamField[idx] = streamFunction(fx, fy, t);
+          }
+        }
+
+        const scale = config.strength * n;
+        for (let y = 0; y < n; y++) {
+          for (let x = 0; x < n; x++) {
+            const idx = y * n + x;
+            const xp = Math.min(x + 1, n - 1);
+            const xm = Math.max(x - 1, 0);
+            const yp = Math.min(y + 1, n - 1);
+            const ym = Math.max(y - 1, 0);
+
+            let dpsi_dx;
+            if (x === 0) {
+              dpsi_dx = streamField[y * n + xp] - streamField[idx];
+            } else if (x === n - 1) {
+              dpsi_dx = streamField[idx] - streamField[y * n + xm];
+            } else {
+              dpsi_dx = (streamField[y * n + xp] - streamField[y * n + xm]) * 0.5;
+            }
+
+            let dpsi_dy;
+            if (y === 0) {
+              dpsi_dy = streamField[yp * n + x] - streamField[idx];
+            } else if (y === n - 1) {
+              dpsi_dy = streamField[idx] - streamField[ym * n + x];
+            } else {
+              dpsi_dy = (streamField[yp * n + x] - streamField[ym * n + x]) * 0.5;
+            }
+
+            velocity[idx * 2] = dpsi_dy * scale;
+            velocity[idx * 2 + 1] = -dpsi_dx * scale;
+          }
+        }
+      }
+
+      const gaussianCache = new Map();
+      function gaussianKernel(sigma) {
+        const key = sigma.toFixed(2);
+        if (gaussianCache.has(key)) {
+          return gaussianCache.get(key);
+        }
+        const radius = Math.max(1, Math.floor(sigma * 3));
+        const size = radius * 2 + 1;
+        const weights = new Float32Array(size);
+        let sum = 0;
+        for (let i = -radius; i <= radius; i++) {
+          const value = Math.exp(-(i * i) / (2 * sigma * sigma));
+          weights[i + radius] = value;
+          sum += value;
+        }
+        for (let i = 0; i < size; i++) {
+          weights[i] /= sum;
+        }
+        const result = { radius, weights };
+        gaussianCache.set(key, result);
+        return result;
+      }
+
+      function gaussianBlur(data, width, height, channels, sigma, temp) {
+        if (sigma <= 0) {
+          return;
+        }
+        const { radius, weights } = gaussianKernel(sigma);
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            for (let c = 0; c < channels; c++) {
+              let accum = 0;
+              for (let k = -radius; k <= radius; k++) {
+                const xi = Math.min(width - 1, Math.max(0, x + k));
+                accum += data[(y * width + xi) * channels + c] * weights[k + radius];
+              }
+              temp[(y * width + x) * channels + c] = accum;
+            }
+          }
+        }
+
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            for (let c = 0; c < channels; c++) {
+              let accum = 0;
+              for (let k = -radius; k <= radius; k++) {
+                const yi = Math.min(height - 1, Math.max(0, y + k));
+                accum += temp[(yi * width + x) * channels + c] * weights[k + radius];
+              }
+              data[(y * width + x) * channels + c] = accum;
+            }
+          }
+        }
+      }
+
+      function advect(source, velocityField, width, height, dt, out) {
+        for (let y = 0; y < height; y++) {
+          for (let x = 0; x < width; x++) {
+            const baseIndex = y * width + x;
+            const vx = velocityField[baseIndex * 2];
+            const vy = velocityField[baseIndex * 2 + 1];
+
+            let fx = x - dt * vx;
+            let fy = y - dt * vy;
+
+            if (fx < 0) fx = 0;
+            if (fy < 0) fy = 0;
+            if (fx > width - 1) fx = width - 1;
+            if (fy > height - 1) fy = height - 1;
+
+            const x0 = Math.floor(fx);
+            const y0 = Math.floor(fy);
+            const x1 = Math.min(x0 + 1, width - 1);
+            const y1 = Math.min(y0 + 1, height - 1);
+
+            const tx = fx - x0;
+            const ty = fy - y0;
+
+            const idx00 = (y0 * width + x0) * 3;
+            const idx10 = (y0 * width + x1) * 3;
+            const idx01 = (y1 * width + x0) * 3;
+            const idx11 = (y1 * width + x1) * 3;
+            const dst = baseIndex * 3;
+
+            for (let c = 0; c < 3; c++) {
+              const top = source[idx00 + c] * (1 - tx) + source[idx10 + c] * tx;
+              const bottom = source[idx01 + c] * (1 - tx) + source[idx11 + c] * tx;
+              out[dst + c] = top * (1 - ty) + bottom * ty;
+            }
+          }
+        }
+      }
+
+      function updateSimulation(dtMs) {
+        const stepLength = frameInterval;
+        accumulator += dtMs;
+        let updated = false;
+
+        while (accumulator >= stepLength) {
+          const t = ((step % config.stepsPerCycle) / config.stepsPerCycle) * 6.0;
+          buildVelocityField(t);
+          gaussianBlur(velocity, config.resolution, config.resolution, 2, config.blurSigma, velocityTemp);
+          advect(dye, velocity, config.resolution, config.resolution, config.dt, tempDye);
+
+          const len = dye.length;
+          for (let i = 0; i < len; i++) {
+            dye[i] = 0.995 * tempDye[i] + 0.005 * baseDye[i];
+          }
+
+          step++;
+          accumulator -= stepLength;
+          updated = true;
+        }
+
+        if (updated) {
+          drawFrame();
+        }
+      }
+
+      function drawFrame() {
+        const len = config.resolution * config.resolution;
+        for (let i = 0; i < len; i++) {
+          const src = i * 3;
+          const dst = i * 4;
+          pixels[dst] = clamp255(dye[src]);
+          pixels[dst + 1] = clamp255(dye[src + 1]);
+          pixels[dst + 2] = clamp255(dye[src + 2]);
+          pixels[dst + 3] = 255;
+        }
+        ctx.putImageData(imageData, 0, 0);
+      }
+
+      function animate(timestamp) {
+        const dtMs = timestamp - lastTime;
+        lastTime = timestamp;
+        updateSimulation(dtMs);
+        requestAnimationFrame(animate);
+      }
+
+      function updateControlLabels() {
+        controls.strengthLabel.textContent = config.strength.toFixed(2);
+        controls.dtLabel.textContent = config.dt.toFixed(2);
+        controls.blurLabel.textContent = config.blurSigma.toFixed(1);
+        controls.fpsLabel.textContent = Math.round(config.fps).toString();
+      }
+
+      controls.strength.addEventListener("input", (event) => {
+        config.strength = parseFloat(event.target.value);
+        updateControlLabels();
+      });
+
+      controls.dt.addEventListener("input", (event) => {
+        config.dt = parseFloat(event.target.value);
+        updateControlLabels();
+      });
+
+      controls.blur.addEventListener("input", (event) => {
+        config.blurSigma = parseFloat(event.target.value);
+        updateControlLabels();
+      });
+
+      controls.fps.addEventListener("input", (event) => {
+        config.fps = parseFloat(event.target.value);
+        frameInterval = 1000 / config.fps;
+        updateControlLabels();
+      });
+
+      controls.reset.addEventListener("click", () => {
+        seedRng((Math.random() * 0xffffffff) >>> 0);
+        populateBaseDye();
+      });
+
+      window.addEventListener("resize", () => {
+        const displaySize = Math.min(512, Math.round(window.innerWidth * 0.7));
+        canvas.style.width = displaySize + "px";
+        canvas.style.height = displaySize + "px";
+      });
+
+      updateControlLabels();
+      initBuffers();
+      requestAnimationFrame(animate);
+    })();
+  </script>
+</body>
+</html>
